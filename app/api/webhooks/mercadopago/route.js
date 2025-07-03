@@ -1,8 +1,8 @@
 // src/app/api/webhooks/mercadopago/route.js
 import { NextResponse } from 'next/server';
 import mercadopago from 'mercadopago'; // Importa el SDK de Mercado Pago
-import dbConnect from '@/lib/db'; // Para conectar a la base de datos
-import Donation from '@/lib/models/Donation'; // Necesitarás un modelo para guardar las donaciones
+import dbConnect from '/lib/db'; // Para conectar a la base de datos
+import Donation from '/lib/models/Donation'; // Necesitarás un modelo para guardar las donaciones
 
 // Configura Mercado Pago con tu Access Token
 mercadopago.configure({
