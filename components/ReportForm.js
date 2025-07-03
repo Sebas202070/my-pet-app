@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CameraIcon, PhotoIcon } from '@heroicons/react/24/outline'; // Iconos de ejemplo (instala @heroicons/react)
+import Image from 'next/image';
 
 // Asegúrate de instalar heroicons si no los tienes: npm install @heroicons/react
 
@@ -379,7 +380,7 @@ export default function ReportForm({ existingReport = null }) {
         <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
           <div className="text-center">
             {previewPhoto ? (
-              <img src={previewPhoto} alt="Vista previa de la mascota" className="mx-auto h-48 w-48 object-cover rounded-md" />
+              <Image src={previewPhoto} alt="Vista previa de la mascota" className="mx-auto h-48 w-48 object-cover rounded-md" />
             ) : (
               <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
             )}
