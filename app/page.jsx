@@ -64,8 +64,8 @@ export default async function HomePage() {
           <div className="container mx-auto relative z-10 flex flex-col items-center -mt-10">
             <SparklesIcon className="h-16 w-16 text-yellow-300 mb-4 animate-pulse-slow" /> 
             
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 animate-fade-in-down drop-shadow-2xl leading-tight px-2"> {/* Ajuste de tamaño de texto y padding */}
-              **Mascotas Solidarias Misiones**
+          <h1 className="text-4xl sm:text-8xl md:text-6xl font-extrabold mb-6 animate-fade-in-down drop-shadow-2xl leading-tight px-2"> {/* Ajuste de tamaño de texto y padding */}
+              Mascotas Solidarias Misiones
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl max-w-3xl mb-10 leading-relaxed animate-fade-in-up opacity-90 px-4"> {/* Ajuste de tamaño de texto y padding */}
               Tu plataforma para reportar y ayudar a mascotas perdidas, encontradas, en apuros o que necesitan un hogar.
