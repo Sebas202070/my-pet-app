@@ -9,39 +9,33 @@ export const metadata = {
 
 // Función para obtener todos los reportes desde nuestra API Route
 async function getAllReports() {
+  console.log("Frontend: getAllReports - Iniciando fetch de todos los reportes.");
   try {
-    // --- CORRECCIÓN CLAVE 1: Usa NEXT_PUBLIC_BASE_URL para que funcione en producción ---
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; 
-    
-    // Si NEXT_PUBLIC_BASE_URL no está definido (ej. en desarrollo sin .env.local), usa localhost
-    // En producción, Vercel u otros hosts lo definirán automáticamente a tu dominio.
-    if (!baseUrl) {
-      console.warn("NEXT_PUBLIC_BASE_URL no está definido. Usando http://localhost:3000.");
-    }
-    const fetchUrl = `${baseUrl || 'http://localhost:3000'}/api/reports`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const fetchUrl = `${baseUrl}/api/reports`;
+    console.log(`Frontend: getAllReports - URL de fetch: ${fetchUrl}`);
 
     const res = await fetch(fetchUrl, { 
-      // --- CORRECCIÓN CLAVE 2: Usa revalidate para permitir la generación estática ---
-      // Esto le dice a Next.js que puede cachear esta página por 60 segundos.
-      // Después de 60 segundos, si hay una nueva solicitud, Next.js intentará revalidar en el fondo.
-      // Esto permite que la página se construya estáticamente pero se mantenga actualizada.
       next: { revalidate: 70 } 
     });
 
     if (!res.ok) {
-      console.error(`Failed to fetch reports: ${res.status} ${res.statusText}`);
+      const errorBody = await res.text(); // Leer el cuerpo de la respuesta para ver el HTML de error
+      console.error(`Frontend: getAllReports - Failed to fetch reports: ${res.status} ${res.statusText}. Response body:`, errorBody);
       throw new Error(`Failed to fetch reports: ${res.status} ${res.statusText}`);
     }
     const data = await res.json();
+    console.log("Frontend: getAllReports - Datos de reportes recibidos:", data);
     return data.reports; 
   } catch (error) {
-    console.error('Error fetching reports:', error);
+    console.error('Frontend: getAllReports - Error fetching reports:', error);
     return []; 
   }
 }
 
 export default async function ReportsPage() {
   const reports = await getAllReports();
+  console.log("Frontend: ReportsPage - Reportes para renderizar:", reports);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 py-12 px-4">

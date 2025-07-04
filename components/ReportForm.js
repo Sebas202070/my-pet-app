@@ -380,7 +380,7 @@ export default function ReportForm({ existingReport = null }) {
         <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
           <div className="text-center">
             {previewPhoto ? (
-              <Image src={previewPhoto} alt="Vista previa de la mascota" className="mx-auto h-48 w-48 object-cover rounded-md" />
+              <Image src={previewPhoto} alt="Vista previa de la mascota" className="mx-auto h-48 w-48 object-cover rounded-md" width={200} height={200}/>
             ) : (
               <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
             )}

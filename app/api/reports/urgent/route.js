@@ -1,55 +1,84 @@
+
 // src/app/api/reports/urgent/route.js
 import { NextResponse } from 'next/server';
-import dbConnect from '/lib/db'; // Asegúrate de que esta ruta sea correcta
-import Report from '/lib/models/Report'; // Asegúrate de que esta ruta sea correcta
+import dbConnect from '/lib/db'; 
+import Report from '/lib/models/Report'; 
 
 export async function GET() {
-  await dbConnect();
+  console.log("API: /api/reports/urgent (GET) - Petición recibida.");
+  try {
+    await dbConnect();
+    console.log("API: /api/reports/urgent (GET) - Conexión a DB exitosa.");
+  } catch (dbError) {
+    console.error("API: /api/reports/urgent (GET) - Error al conectar a la DB:", dbError);
+    return NextResponse.json(
+      { error: 'Error de conexión a la base de datos', details: dbError.message },
+      { status: 500 }
+    );
+  }
 
   try {
-    // Definimos los tipos de reporte que consideramos "urgentes"
-    // Incluyo 'apuros' y 'necesita_hogar' como los principales urgentes.
     const urgentTypes = ['apuros', 'necesita_hogar'];
+    const urgentLevels = ['medio', 'alto']; // Coincide con tu enum en Report.js
 
-    // Buscamos reportes que sean de tipo "apuros" o "necesita_hogar"
-    // y que no estén marcados como resueltos (asumo un campo 'isResolved' o similar en tu modelo)
-    const urgentReports = await Report.find({
+    console.log("API: /api/reports/urgent (GET) - Buscando reportes con tipos:", urgentTypes, "y niveles de urgencia (finales):", urgentLevels);
+
+    // --- PASO DE DEPURACIÓN CRÍTICO: Obtener todos los reportes para inspeccionar ---
+    const allReportsInDb = await Report.find({}).lean();
+    console.log("API: /api/reports/urgent (GET) - Todos los reportes en DB (para depuración):");
+    allReportsInDb.forEach(report => {
+      // Ahora inspeccionamos el campo 'status'
+      console.log(`  - ID: ${report._id}, Tipo: ${report.reportType}, Urgencia: ${report.urgency}, Status: ${report.status}`);
+    });
+    // --- FIN PASO DE DEPURACIÓN ---
+
+    const query = {
       reportType: { $in: urgentTypes },
-      // Puedes añadir un filtro aquí para reportes no resueltos, por ejemplo:
-      // status: 'activo' // O 'isResolved: false' en tu modelo, si lo tienes
-    })
-    .sort({ postedAt: -1 }) // Ordena por los más recientes primero
-    .limit(6) // Limita el número de reportes a recuperar para el home (ajusta este número si quieres más o menos)
-    .lean(); // Para obtener objetos JavaScript planos
+      urgency: { $in: urgentLevels },
+      status: 'activo', // <--- ¡CAMBIO CLAVE AQUÍ! Ahora filtra por el campo 'status'
+    };
 
-    // Prepara los datos para la respuesta, asegurando que sean serializables
-    const serializableReports = urgentReports.map(report => ({
-      // Asegúrate de incluir todos los campos que tu ReportCard utiliza.
-      _id: report._id.toString(),
-      title: report.title,
-      description: report.description,
-      photoUrl: report.photoUrl,
-      reportType: report.reportType,
-      location: report.location,
-      postedAt: report.postedAt.toISOString(),
-      lostDate: report.lostDate ? report.lostDate.toISOString() : null, // Incluye lostDate si existe
-      foundDate: report.foundDate ? report.foundDate.toISOString() : null, // Incluye foundDate si existe
-      urgency: report.urgency || null, // Para el tipo 'apuros'
-      // Añade aquí cualquier otro campo que ReportCard pueda necesitar, como species, age, contactPhone si los usas para mostrar en la tarjeta.
-      species: report.species || null,
-      age: report.age || null,
-      gender: report.gender || null,
-      contactPhone: report.contactPhone || null,
-    }));
+    console.log("API: /api/reports/urgent (GET) - Ejecutando consulta Mongoose:", JSON.stringify(query));
 
-    // Opcional: Shuffle para que las tarjetas sean aleatorias cada vez que se cargue la página
-    // Esto es útil si tienes más reportes urgentes de los que muestras.
+    const urgentReports = await Report.find(query)
+    .sort({ postedAt: -1 })
+    .limit(6)
+    .lean(); 
+
+    console.log(`API: /api/reports/urgent (GET) - Encontrados ${urgentReports.length} reportes urgentes (después de query).`);
+    console.log("API: /api/reports/urgent (GET) - Reportes encontrados (raw):", urgentReports);
+
+    const serializableReports = urgentReports.map(report => {
+      return {
+        _id: report._id.toString(),
+        title: report.title || 'Sin título',
+        description: report.description || 'Sin descripción',
+        photoUrl: report.photoUrl || '/images/default-pet.png',
+        reportType: report.reportType || 'desconocido',
+        location: report.location || 'Desconocida',
+        postedAt: report.postedAt ? report.postedAt.toISOString() : null,
+        lostDate: report.lostDate ? report.lostDate.toISOString() : null,
+        foundDate: report.foundDate ? report.foundDate.toISOString() : null,
+        urgency: report.urgency || 'bajo', 
+        species: report.species || 'desconocida',
+        breed: report.breed || 'desconocida',
+        gender: report.gender || 'desconocido',
+        age: report.age || 'desconocida',
+        contactPhone: report.contactPhone || 'No proporcionado',
+        contactEmail: report.contactEmail || 'No proporcionado',
+        ownerId: report.ownerId ? report.ownerId.toString() : null, 
+        status: report.status || 'activo', // Aseguramos que el status se incluya en la serialización
+      };
+    });
+
     const shuffledReports = serializableReports.sort(() => 0.5 - Math.random());
-
+    console.log("API: /api/reports/urgent (GET) - Retornando JSON de reportes.");
     return NextResponse.json(shuffledReports, { status: 200 });
 
   } catch (error) {
-    console.error('Error al obtener reportes urgentes:', error);
+    console.error('API: /api/reports/urgent (GET) - Error en el bloque principal de la función GET:', error);
+    console.error('Detalles del error:', error.message, error.stack);
+    
     return NextResponse.json(
       { error: 'Error interno del servidor al obtener reportes urgentes', details: error.message },
       { status: 500 }
