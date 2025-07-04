@@ -19,7 +19,7 @@ import {
   XMarkIcon // Icono de cerrar (para el menú de hamburguesa)
 } from '@heroicons/react/24/outline';
 
-export default function Navbar() {
+export default function Header() {
   const [isOpen, setIsOpen] = useState(false); // Estado para controlar si el menú móvil está abierto
   const { data: session, status } = useSession(); // Obtener la sesión del usuario
 
@@ -96,13 +96,14 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <button
-              onClick={() => signIn()} // NextAuth.js maneja la redirección a la página de login
+            // CAMBIO CLAVE AQUÍ: Usamos Link para ir a la página de login
+            <Link 
+              href="/login" 
               className="flex items-center bg-white text-blue-700 hover:bg-blue-100 py-2 px-5 rounded-full font-semibold transition-all duration-200 shadow-md text-lg transform hover:-translate-y-0.5"
             >
               <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
               Iniciar Sesión
-            </button>
+            </Link>
           )}
         </div>
       </div>
@@ -138,12 +139,14 @@ export default function Navbar() {
                 <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" /> Cerrar Sesión
               </button>
             ) : (
-              <button
-                onClick={() => { signIn(); toggleMenu(); }}
+              // CAMBIO CLAVE AQUÍ: Usamos Link para ir a la página de login
+              <Link 
+                href="/login" 
                 className="w-full text-left flex items-center bg-white text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold transition-colors duration-200 text-base"
+                onClick={toggleMenu} // Cierra el menú móvil al hacer clic
               >
                 <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" /> Iniciar Sesión
-              </button>
+              </Link>
             )}
           </div>
         </div>
