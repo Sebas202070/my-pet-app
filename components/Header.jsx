@@ -1,65 +1,153 @@
+// src/components/Navbar.jsx
+'use client'; // Este componente necesita ser un Client Component para manejar el estado del menú
 
-'use client'; // ¡Este componente ahora es un Client Component!
-
+import { useState } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react'; // Importa useSession y signOut
-import { HomeIcon, PlusCircleIcon, HeartIcon, UserCircleIcon, ArrowRightOnRectangleIcon, ArrowLeftOnRectangleIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'; // Iconos
+// No necesitamos 'next/image' si usamos un icono SVG para el logo
+import { useSession, signIn, signOut } from 'next-auth/react'; // Para obtener el estado de la sesión y funciones de auth
 
-export default function Header() {
-  const { data: session, status } = useSession(); // Hook para acceder a la sesión
+// Importa los iconos que necesitas
+import {
+  HomeIcon,
+  PlusCircleIcon,
+  HeartIcon, // Icono para el logo
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
+  ArrowLeftOnRectangleIcon,
+  CurrencyDollarIcon,
+  Bars3Icon, // Icono de hamburguesa
+  XMarkIcon // Icono de cerrar (para el menú de hamburguesa)
+} from '@heroicons/react/24/outline';
+
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false); // Estado para controlar si el menú móvil está abierto
+  const { data: session, status } = useSession(); // Obtener la sesión del usuario
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
-    <header className="bg-blue-600 text-white shadow-md">
-      <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-        {/* Logo o Nombre de la App */}
-        <Link href="/" className="text-2xl font-bold hover:text-blue-200 transition-colors flex items-center">
-          <HeartIcon className="h-7 w-7 mr-2" />
-          Mascotas Solidarias
+    <nav className="bg-gradient-to-r from-blue-600 to-purple-700 p-4 shadow-lg sticky top-0 z-50">
+      <div className="container mx-auto flex justify-between items-center">
+        {/* Logo y Nombre de la App */}
+        <Link href="/" className="flex items-center space-x-2 sm:space-x-3 text-white">
+          {/* Usamos el HeartIcon como logo, como lo tenías antes */}
+          <HeartIcon className="h-10 w-10 text-red-300" /> {/* Ajusta el tamaño y color si es necesario */}
+          <span className="text-2xl font-bold tracking-tight hidden sm:block">
+            Mascotas Solidarias
+          </span>
+          {/* Versión corta para móviles */}
+          <span className="text-2xl font-bold tracking-tight block sm:hidden">
+            M.S.
+          </span>
         </Link>
 
-        {/* Navegación Principal */}
-        <div className="flex items-center space-x-6">
-          <Link href="/" className="flex items-center hover:text-blue-200 transition-colors">
-            <HomeIcon className="h-5 w-5 mr-1" />
+        {/* Botón de Hamburguesa para Móviles */}
+        <div className="md:hidden">
+          <button
+            onClick={toggleMenu}
+            className="text-white focus:outline-none focus:ring-2 focus:ring-blue-200 rounded-md p-2"
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
+          >
+            {isOpen ? (
+              <XMarkIcon className="w-8 h-8" /> // Icono de "X" cuando el menú está abierto
+            ) : (
+              <Bars3Icon className="w-8 h-8" /> // Icono de hamburguesa cuando el menú está cerrado
+            )}
+          </button>
+        </div>
+
+        {/* Enlaces de Navegación (Desktop) */}
+        <div className="hidden md:flex items-center space-x-6">
+          <Link href="/" className="flex items-center text-white hover:text-blue-200 transition-colors duration-200 text-lg font-medium group">
+            <HomeIcon className="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" />
             Inicio
           </Link>
-          <Link href="/reports/new" className="flex items-center hover:text-blue-200 transition-colors">
-            <PlusCircleIcon className="h-5 w-5 mr-1" />
+          <Link href="/reports" className="flex items-center text-white hover:text-blue-200 transition-colors duration-200 text-lg font-medium group">
+            <PlusCircleIcon className="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" />
+            Reportes
+          </Link>
+          <Link href="/reports/new" className="flex items-center text-white hover:text-blue-200 transition-colors duration-200 text-lg font-medium group">
+            <PlusCircleIcon className="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" />
             Reportar
           </Link>
-          <Link href="/donate" className="flex items-center hover:text-blue-200 transition-colors">
-            <CurrencyDollarIcon className="h-5 w-5 mr-1" />
+          <Link href="/donate" className="flex items-center text-white hover:text-blue-200 transition-colors duration-200 text-lg font-medium group">
+            <CurrencyDollarIcon className="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" />
             Donar
           </Link>
 
           {/* Renderizado Condicional basado en el estado de la sesión */}
           {status === 'loading' ? (
-            // Opcional: Mostrar un spinner o mensaje de carga mientras se carga la sesión
-            <span className="text-blue-200">Cargando...</span>
+            <span className="text-white text-lg">Cargando...</span>
           ) : session ? (
-            // Si hay sesión (usuario logueado)
             <>
-              <Link href="/dashboard" className="flex items-center hover:text-blue-200 transition-colors">
-                <UserCircleIcon className="h-5 w-5 mr-1" />
-                Hola, {session.user.name || session.user.email}!
+              <Link href="/dashboard" className="flex items-center text-white hover:text-blue-200 transition-colors duration-200 text-lg font-medium group">
+                <UserCircleIcon className="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" />
+                Hola, {session.user.name || session.user.email.split('@')[0]}!
               </Link>
               <button
-                onClick={() => signOut({ callbackUrl: '/' })} // Cierra sesión y redirige a la raíz
-                className="flex items-center bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded-md transition-colors"
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="flex items-center bg-white text-blue-700 hover:bg-blue-100 py-2 px-5 rounded-full font-semibold transition-all duration-200 shadow-md text-lg transform hover:-translate-y-0.5"
               >
-                <ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" />
+                <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
                 Cerrar Sesión
               </button>
             </>
           ) : (
-            // Si no hay sesión (usuario no logueado)
-            <Link href="/login" className="flex items-center bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded-md transition-colors">
-              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-1" />
+            <button
+              onClick={() => signIn()} // NextAuth.js maneja la redirección a la página de login
+              className="flex items-center bg-white text-blue-700 hover:bg-blue-100 py-2 px-5 rounded-full font-semibold transition-all duration-200 shadow-md text-lg transform hover:-translate-y-0.5"
+            >
+              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
               Iniciar Sesión
-            </Link>
+            </button>
           )}
         </div>
-      </nav>
-    </header>
+      </div>
+
+      {/* Menú Móvil (Desplegable) */}
+      {isOpen && (
+        <div className="md:hidden mt-4 bg-blue-700 rounded-lg shadow-xl animate-fade-in-down">
+          <div className="flex flex-col space-y-3 p-4">
+            <Link href="/" className="flex items-center text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium" onClick={toggleMenu}>
+              <HomeIcon className="h-5 w-5 mr-2" /> Inicio
+            </Link>
+            <Link href="/reports" className="flex items-center text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium" onClick={toggleMenu}>
+              <PlusCircleIcon className="h-5 w-5 mr-2" /> Reportes
+            </Link>
+            <Link href="/reports/new" className="flex items-center text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium" onClick={toggleMenu}>
+              <PlusCircleIcon className="h-5 w-5 mr-2" /> Reportar
+            </Link>
+            <Link href="/donate" className="flex items-center text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium" onClick={toggleMenu}>
+              <CurrencyDollarIcon className="h-5 w-5 mr-2" /> Donar
+            </Link>
+            {status === 'authenticated' && (
+              <Link href="/dashboard" className="flex items-center text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium" onClick={toggleMenu}>
+                <UserCircleIcon className="h-5 w-5 mr-2" /> Mi Perfil
+              </Link>
+            )}
+            {status === 'loading' ? (
+              <span className="text-white text-base px-3 py-2">Cargando...</span>
+            ) : session ? (
+              <button
+                onClick={() => { signOut({ callbackUrl: '/' }); toggleMenu(); }}
+                className="w-full text-left flex items-center bg-white text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold transition-colors duration-200 text-base"
+              >
+                <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" /> Cerrar Sesión
+              </button>
+            ) : (
+              <button
+                onClick={() => { signIn(); toggleMenu(); }}
+                className="w-full text-left flex items-center bg-white text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold transition-colors duration-200 text-base"
+              >
+                <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" /> Iniciar Sesión
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
   );
 }
