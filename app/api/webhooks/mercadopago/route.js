@@ -1,8 +1,8 @@
 // src/app/api/webhooks/mercadopago/route.js
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago'; // Importa las clases modernas
-import dbConnect from '@/lib/db'; // Para conectar a la base de datos
-import Donation from '@/lib/models/Donation'; // Tu modelo de Mongoose para donaciones
+import dbConnect from '/lib/db'; // Para conectar a la base de datos
+import Donation from '/lib/models/Donation'; // Tu modelo de Mongoose para donaciones
 import nodemailer from 'nodemailer'; // Para enviar correos electrónicos
 import { ObjectId } from 'mongodb'; // Necesario para buscar por _id de MongoDB
 
@@ -13,10 +13,11 @@ const client = new MercadoPagoConfig({
 
 // Configura Nodemailer (fuera del handler para que se inicialice una sola vez)
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST, // Ej: 'smtp.gmail.com'
-  port: Number(process.env.EMAIL_PORT), // Ej: 587 o 465
-  secure: process.env.EMAIL_SECURE === 'true', // true para 465, false para 587
+   host: 'smtp.gmail.com',
+                        port: 587,
+                        secure: false,
   auth: {
+     type: 'login',
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },

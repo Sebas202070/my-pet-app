@@ -1,8 +1,8 @@
 // src/app/api/mercadopago/create-preference/route.js
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
-import dbConnect from '@/lib/db'; // Asegúrate de que esta ruta sea correcta
-import Donation from '@/lib/models/Donation'; // Asegúrate de que esta ruta sea correcta
+import dbConnect from '/lib/db'; // Asegúrate de que esta ruta sea correcta
+import Donation from '/lib/models/Donation'; // Asegúrate de que esta ruta sea correcta
 
 // Configura el cliente de Mercado Pago con tu Access Token
 const client = new MercadoPagoConfig({
