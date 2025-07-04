@@ -1,4 +1,3 @@
-
 // src/app/login/page.jsx
 'use client'; // ¡Este es un Client Component!
 
@@ -125,9 +124,9 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-gray-600">
+        <p className="mt-8 text-center text-sm text-gray-700">
           ¿No tienes una cuenta?{' '}
-          <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link href="/register" className="font-medium text-blue-700 hover:text-blue-500">
             Regístrate aquí
           </Link>
         </p>
